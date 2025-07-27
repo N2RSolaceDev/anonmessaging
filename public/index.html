@@ -196,174 +196,6 @@
             -webkit-text-fill-color: transparent;
         }
         
-        .chat-container {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 25px;
-        }
-        
-        .contacts {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            height: fit-content;
-        }
-        
-        .contact-list {
-            list-style: none;
-        }
-        
-        .contact-item {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .contact-item:hover {
-            background: rgba(72, 149, 239, 0.2);
-        }
-        
-        .contact-item.active {
-            background: rgba(72, 149, 239, 0.3);
-        }
-        
-        .contact-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        .contact-info {
-            flex: 1;
-        }
-        
-        .contact-name {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-        
-        .contact-code {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .chat-box {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            height: 600px;
-        }
-        
-        .chat-header {
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .chat-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--danger), #b5179e);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.3rem;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .message {
-            max-width: 80%;
-            padding: 15px;
-            border-radius: 15px;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .received {
-            background: rgba(72, 149, 239, 0.25);
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-        }
-        
-        .sent {
-            background: rgba(67, 97, 238, 0.3);
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .message-sender {
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .message-content {
-            margin-bottom: 8px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        
-        .message-image {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-            max-height: 300px;
-            object-fit: contain;
-        }
-        
-        .message-time {
-            font-size: 0.75rem;
-            opacity: 0.7;
-            text-align: right;
-        }
-        
-        .message-input {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .message-input input {
-            flex: 1;
-        }
-        
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -423,16 +255,8 @@
         }
         
         @media (max-width: 768px) {
-            .chat-container {
-                grid-template-columns: 1fr;
-            }
-            
             h1 {
                 font-size: 2.2rem;
-            }
-            
-            .message {
-                max-width: 90%;
             }
         }
     </style>
@@ -480,37 +304,11 @@
             <button id="add-contact-btn" class="btn">
                 <i class="fas fa-user-plus"></i> Add Contact
             </button>
-        </div>
-        
-        <div id="messaging-section" class="hidden">
-            <div class="chat-container">
-                <div class="contacts">
-                    <h3 class="card-title"><i class="fas fa-users"></i> Contacts</h3>
-                    <ul class="contact-list" id="contact-list">
-                        <!-- Contacts will be added here dynamically -->
-                    </ul>
-                </div>
-                
-                <div class="chat-box">
-                    <div class="chat-header">
-                        <div class="chat-avatar" id="chat-avatar">U</div>
-                        <div>
-                            <h3 id="chat-username">Select a contact</h3>
-                            <p id="chat-code">000</p>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-messages" id="chat-messages">
-                        <!-- Messages will appear here -->
-                    </div>
-                    
-                    <div class="message-input">
-                        <input type="text" id="message-input" placeholder="Type a message or paste image URL...">
-                        <button id="send-message-btn" class="btn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="/messaging" class="btn" style="text-decoration: none;">
+                    <i class="fas fa-comments"></i> Go to Messaging
+                </a>
             </div>
         </div>
         
@@ -546,84 +344,29 @@
         </footer>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
         // DOM Elements
         const welcomeSection = document.getElementById('welcome-section');
         const userSection = document.getElementById('user-section');
-        const messagingSection = document.getElementById('messaging-section');
         const createUserBtn = document.getElementById('create-user-btn');
         const addContactBtn = document.getElementById('add-contact-btn');
-        const sendMessageBtn = document.getElementById('send-message-btn');
         const usernameEl = document.getElementById('username');
         const userCodeEl = document.getElementById('user-code');
         const recipientCodeInput = document.getElementById('recipient-code');
-        const contactList = document.getElementById('contact-list');
-        const chatMessages = document.getElementById('chat-messages');
-        const messageInput = document.getElementById('message-input');
-        const chatUsername = document.getElementById('chat-username');
-        const chatCode = document.getElementById('chat-code');
-        const chatAvatar = document.getElementById('chat-avatar');
-        
-        // State
-        let currentUser = null;
-        let contacts = [];
-        let activeContact = null;
-        let messages = {};
-        let socket = null;
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             // Check if user already exists in localStorage
             const savedUser = localStorage.getItem('untracedUser');
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showUserSection();
-                loadContacts();
-                initializeSocket();
+                const user = JSON.parse(savedUser);
+                showUserSection(user);
             }
         });
         
         // Event Listeners
         createUserBtn.addEventListener('click', createNewUser);
         addContactBtn.addEventListener('click', addContact);
-        sendMessageBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-        
-        // Initialize Socket.IO connection
-        function initializeSocket() {
-            socket = io();
-            
-            socket.on('connect', () => {
-                console.log('Connected to server');
-                socket.emit('join', { code: currentUser.code });
-            });
-            
-            socket.on('joined', (data) => {
-                console.log(`Joined as ${data.username}`);
-            });
-            
-            socket.on('new-message', (message) => {
-                // Display received message
-                displayMessage(message);
-                
-                // Add to messages store
-                if (!messages[message.sender]) {
-                    messages[message.sender] = [];
-                }
-                messages[message.sender].push(message);
-            });
-            
-            socket.on('message-error', (data) => {
-                alert(data.message);
-            });
-            
-            socket.on('error', (data) => {
-                alert(data.message);
-            });
-        }
         
         // Create new user
         async function createNewUser() {
@@ -636,11 +379,10 @@
                     return;
                 }
                 
-                currentUser = { username: data.username, code: data.code };
-                localStorage.setItem('untracedUser', JSON.stringify(currentUser));
+                const user = { username: data.username, code: data.code };
+                localStorage.setItem('untracedUser', JSON.stringify(user));
                 
-                showUserSection();
-                initializeSocket();
+                showUserSection(user);
             } catch (err) {
                 console.error('Error creating user:', err);
                 alert('Failed to create user. Please try again.');
@@ -648,17 +390,12 @@
         }
         
         // Show user section
-        function showUserSection() {
+        function showUserSection(user) {
             welcomeSection.classList.add('hidden');
             userSection.classList.remove('hidden');
-            messagingSection.classList.remove('hidden');
             
-            usernameEl.textContent = currentUser.username;
-            userCodeEl.textContent = currentUser.code;
-            
-            // Add self as first contact
-            contacts = [{ username: currentUser.username, code: currentUser.code }];
-            renderContacts();
+            usernameEl.textContent = user.username;
+            userCodeEl.textContent = user.code;
         }
         
         // Add contact
@@ -670,14 +407,16 @@
                 return;
             }
             
-            if (code === currentUser.code) {
-                alert('You cannot add yourself!');
+            // Get current user
+            const savedUser = localStorage.getItem('untracedUser');
+            if (!savedUser) {
+                alert('Please create an account first');
                 return;
             }
             
-            // Check if contact already exists
-            if (contacts.some(contact => contact.code === code)) {
-                alert('This contact is already added');
+            const currentUser = JSON.parse(savedUser);
+            if (code === currentUser.code) {
+                alert('You cannot add yourself!');
                 return;
             }
             
@@ -691,126 +430,12 @@
                     return;
                 }
                 
-                contacts.push({ username: data.username, code });
-                renderContacts();
-                recipientCodeInput.value = '';
+                // Redirect to messaging page with contact
+                window.location.href = `/messaging?contact=${code}`;
             } catch (err) {
                 console.error('Error adding contact:', err);
                 alert('Failed to add contact. Please try again.');
             }
-        }
-        
-        // Render contacts
-        function renderContacts() {
-            contactList.innerHTML = '';
-            
-            contacts.forEach(contact => {
-                const li = document.createElement('li');
-                li.className = 'contact-item';
-                if (activeContact && activeContact.code === contact.code) {
-                    li.classList.add('active');
-                }
-                
-                li.innerHTML = `
-                    <div class="contact-avatar">${contact.username.charAt(0)}</div>
-                    <div class="contact-info">
-                        <div class="contact-name">${contact.username}</div>
-                        <div class="contact-code">${contact.code}</div>
-                    </div>
-                `;
-                
-                li.addEventListener('click', () => {
-                    selectContact(contact);
-                });
-                
-                contactList.appendChild(li);
-            });
-        }
-        
-        // Select contact
-        function selectContact(contact) {
-            activeContact = contact;
-            chatUsername.textContent = contact.username;
-            chatCode.textContent = contact.code;
-            chatAvatar.textContent = contact.username.charAt(0);
-            
-            // Clear messages
-            chatMessages.innerHTML = '';
-            
-            // Render messages for this contact
-            if (messages[contact.code]) {
-                messages[contact.code].forEach(msg => {
-                    displayMessage(msg);
-                });
-            }
-            
-            // Update active contact in UI
-            renderContacts();
-        }
-        
-        // Send message
-        function sendMessage() {
-            const content = messageInput.value.trim();
-            
-            if (!content) return;
-            if (!activeContact) {
-                alert('Please select a contact first');
-                return;
-            }
-            
-            if (!socket) {
-                alert('Not connected to server');
-                return;
-            }
-            
-            // Send message through socket
-            socket.emit('send-message', {
-                recipientCode: activeContact.code,
-                message: content
-            });
-            
-            // Clear input
-            messageInput.value = '';
-        }
-        
-        // Display message in chat
-        function displayMessage(message) {
-            const messageEl = document.createElement('div');
-            messageEl.className = `message ${message.sender === currentUser.username ? 'sent' : 'received'}`;
-            
-            const timeString = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            if (message.isImage) {
-                messageEl.innerHTML = `
-                    <div class="message-sender">${message.sender}</div>
-                    <img src="${message.content}" alt="Shared image" class="message-image" onerror="this.style.display='none'; this.nextSibling.style.display='block';" onload="this.nextSibling.style.display='none';">
-                    <div class="message-content" style="display:none;">[Image failed to load]</div>
-                    <div class="message-time">${timeString}</div>
-                `;
-            } else {
-                messageEl.innerHTML = `
-                    <div class="message-sender">${message.sender}</div>
-                    <div class="message-content">${message.content}</div>
-                    <div class="message-time">${timeString}</div>
-                `;
-            }
-            
-            chatMessages.appendChild(messageEl);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Load contacts from localStorage
-        function loadContacts() {
-            const savedContacts = localStorage.getItem('untracedContacts');
-            if (savedContacts) {
-                contacts = JSON.parse(savedContacts);
-            }
-            renderContacts();
-        }
-        
-        // Save contacts to localStorage
-        function saveContacts() {
-            localStorage.setItem('untracedContacts', JSON.stringify(contacts));
         }
     </script>
 </body>
