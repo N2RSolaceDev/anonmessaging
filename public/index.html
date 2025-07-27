@@ -337,12 +337,15 @@
         .message-content {
             margin-bottom: 8px;
             line-height: 1.5;
+            word-wrap: break-word;
         }
         
         .message-image {
             max-width: 100%;
             border-radius: 10px;
             margin-top: 10px;
+            max-height: 300px;
+            object-fit: contain;
         }
         
         .message-time {
@@ -438,7 +441,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-lock"></i> Untraced Messenger</h1>
-            <p class="tagline">Secure, temporary messaging with 3-digit user codes. Messages disappear after 1 minute.</p>
+            <p class="tagline">Secure, temporary messaging with 3-digit user codes. Messages disappear after 3 hours.</p>
         </header>
         
         <div id="welcome-section" class="card">
@@ -446,7 +449,7 @@
             <p>Create a temporary account to start messaging securely. Your identity is protected with a random username and 3-digit code.</p>
             
             <div class="info-box">
-                <p><i class="fas fa-info-circle"></i> All messages are automatically deleted after 1 minute to ensure privacy</p>
+                <p><i class="fas fa-info-circle"></i> All messages are automatically deleted after 3 hours to ensure privacy</p>
             </div>
             
             <button id="create-user-btn" class="btn pulse">
@@ -517,7 +520,7 @@
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <h3 class="feature-title">Fully Untraced</h3>
-                <p>No permanent records. All messages are deleted after 1 minute for maximum privacy.</p>
+                <p>No permanent records. All messages are deleted after 3 hours for maximum privacy.</p>
             </div>
             
             <div class="feature-card">
@@ -794,19 +797,6 @@
             
             chatMessages.appendChild(messageEl);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // Auto-delete message after 1 minute
-            setTimeout(() => {
-                if (messageEl.parentNode) {
-                    messageEl.style.opacity = '0';
-                    messageEl.style.transform = 'translateX(20px)';
-                    setTimeout(() => {
-                        if (messageEl.parentNode) {
-                            messageEl.remove();
-                        }
-                    }, 300);
-                }
-            }, 60000);
         }
         
         // Load contacts from localStorage
