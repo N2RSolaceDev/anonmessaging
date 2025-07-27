@@ -21,7 +21,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
       scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "", "https:"],
       connectSrc: ["'self'"]
     }
   },
@@ -187,6 +187,34 @@ app.get('/api/user/:code', async (req, res) => {
   }
 });
 
+// Get user profile
+app.get('/api/profile/:code', async (req, res) => {
+  try {
+    const user = await usersCollection.findOne({ code: req.params.code });
+    if (user) {
+      // Get message count for this user
+      const messageCount = await messagesCollection.countDocuments({
+        $or: [
+          { sender: user.username },
+          { recipient: user.code }
+        ]
+      });
+      
+      res.json({ 
+        username: user.username,
+        code: user.code,
+        createdAt: user.createdAt,
+        messageCount
+      });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (err) {
+    log.logError(err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   log.logActivity(`New socket connection established`);
@@ -267,6 +295,16 @@ app.get('/debug/logs', (req, res) => {
 // Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Serve profile page
+app.get('/profile/:code', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
+// Serve messaging page
+app.get('/messaging', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'messaging.html'));
 });
 
 // Error handling middleware
