@@ -79,6 +79,9 @@ MongoClient.connect(process.env.MONGO_URI, {
     usersCollection = db.collection('users');
     messagesCollection = db.collection('messages');
     log.logSystem('Connected to MongoDB');
+    
+    // Start cleanup job
+    startCleanupJob();
   })
   .catch(err => {
     log.logError(err);
@@ -109,6 +112,29 @@ function isValidImageUrl(url) {
     );
   } catch {
     return false;
+  }
+}
+
+// Cleanup job to delete old messages every 3 hours
+function startCleanupJob() {
+  // Run immediately on startup
+  cleanupOldMessages();
+  
+  // Then run every 3 hours (10800000 ms)
+  setInterval(cleanupOldMessages, 10800000);
+}
+
+// Delete messages older than 3 hours
+async function cleanupOldMessages() {
+  try {
+    const threeHoursAgo = new Date(Date.now() - (3 * 60 * 60 * 1000));
+    const result = await messagesCollection.deleteMany({
+      timestamp: { $lt: threeHoursAgo }
+    });
+    
+    log.logSystem(`Deleted ${result.deletedCount} old messages`);
+  } catch (err) {
+    log.logError(`Error during cleanup: ${err.message}`);
   }
 }
 
@@ -214,16 +240,6 @@ io.on('connection', (socket) => {
       
       // Emit to sender for confirmation
       socket.emit('message-sent', { messageId: result.insertedId });
-      
-      // Delete message after 1 minute
-      setTimeout(async () => {
-        try {
-          await messagesCollection.deleteOne({ _id: result.insertedId });
-          log.logActivity(`Message deleted: ${result.insertedId}`);
-        } catch (err) {
-          log.logError(err);
-        }
-      }, 60000);
       
       log.logActivity(`Message sent from ${socket.data.username} to ${recipient.username}`);
     } catch (err) {
