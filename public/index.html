@@ -543,6 +543,7 @@
         </footer>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         // DOM Elements
         const welcomeSection = document.getElementById('welcome-section');
@@ -566,6 +567,7 @@
         let contacts = [];
         let activeContact = null;
         let messages = {};
+        let socket = null;
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -575,6 +577,7 @@
                 currentUser = JSON.parse(savedUser);
                 showUserSection();
                 loadContacts();
+                initializeSocket();
             }
         });
         
@@ -586,24 +589,59 @@
             if (e.key === 'Enter') sendMessage();
         });
         
+        // Initialize Socket.IO connection
+        function initializeSocket() {
+            socket = io();
+            
+            socket.on('connect', () => {
+                console.log('Connected to server');
+                socket.emit('join', { code: currentUser.code });
+            });
+            
+            socket.on('joined', (data) => {
+                console.log(`Joined as ${data.username}`);
+            });
+            
+            socket.on('new-message', (message) => {
+                // Display received message
+                displayMessage(message);
+                
+                // Add to messages store
+                if (!messages[message.sender]) {
+                    messages[message.sender] = [];
+                }
+                messages[message.sender].push(message);
+            });
+            
+            socket.on('message-error', (data) => {
+                alert(data.message);
+            });
+            
+            socket.on('error', (data) => {
+                alert(data.message);
+            });
+        }
+        
         // Create new user
-        function createNewUser() {
-            // Generate random username
-            const adjectives = ['Quick', 'Silent', 'Hidden', 'Secret', 'Stealth', 'Ghost', 'Shadow', 'Invisible'];
-            const nouns = ['Whisper', 'Echo', 'Phantom', 'Wraith', 'Specter', 'Spirit', 'Glimmer', 'Shade'];
-            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-            const noun = nouns[Math.floor(Math.random() * nouns.length)];
-            const number = Math.floor(Math.random() * 1000);
-            
-            const username = `${adj}${noun}${number}`;
-            
-            // Generate 3-digit code
-            const code = String(Math.floor(100 + Math.random() * 900));
-            
-            currentUser = { username, code };
-            localStorage.setItem('untracedUser', JSON.stringify(currentUser));
-            
-            showUserSection();
+        async function createNewUser() {
+            try {
+                const response = await fetch('/api/new-user');
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                currentUser = { username: data.username, code: data.code };
+                localStorage.setItem('untracedUser', JSON.stringify(currentUser));
+                
+                showUserSection();
+                initializeSocket();
+            } catch (err) {
+                console.error('Error creating user:', err);
+                alert('Failed to create user. Please try again.');
+            }
         }
         
         // Show user section
@@ -621,7 +659,7 @@
         }
         
         // Add contact
-        function addContact() {
+        async function addContact() {
             const code = recipientCodeInput.value.trim();
             
             if (!code || code.length !== 3 || isNaN(code)) {
@@ -640,18 +678,23 @@
                 return;
             }
             
-            // Generate random username for contact
-            const adjectives = ['Mysterious', 'Unknown', 'Anon', 'Secret', 'Hidden', 'Stealth', 'Ghost', 'Shadow'];
-            const nouns = ['User', 'Person', 'Stranger', 'Friend', 'Contact', 'Pal', 'Buddy', 'Mate'];
-            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-            const noun = nouns[Math.floor(Math.random() * nouns.length)];
-            const number = Math.floor(Math.random() * 1000);
-            
-            const username = `${adj}${noun}${number}`;
-            
-            contacts.push({ username, code });
-            renderContacts();
-            recipientCodeInput.value = '';
+            // Get contact info from server
+            try {
+                const response = await fetch(`/api/user/${code}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('User not found with that code');
+                    return;
+                }
+                
+                contacts.push({ username: data.username, code });
+                renderContacts();
+                recipientCodeInput.value = '';
+            } catch (err) {
+                console.error('Error adding contact:', err);
+                alert('Failed to add contact. Please try again.');
+            }
         }
         
         // Render contacts
@@ -712,35 +755,19 @@
                 return;
             }
             
-            // Check if content is an image URL
-            let isImage = false;
-            if (isValidImageUrl(content)) {
-                isImage = true;
+            if (!socket) {
+                alert('Not connected to server');
+                return;
             }
             
-            const message = {
-                sender: currentUser.username,
-                content: content,
-                isImage: isImage,
-                timestamp: new Date()
-            };
-            
-            // Save message
-            if (!messages[activeContact.code]) {
-                messages[activeContact.code] = [];
-            }
-            messages[activeContact.code].push(message);
-            
-            // Display message
-            displayMessage(message);
+            // Send message through socket
+            socket.emit('send-message', {
+                recipientCode: activeContact.code,
+                message: content
+            });
             
             // Clear input
             messageInput.value = '';
-            
-            // Simulate reply after a delay
-            setTimeout(() => {
-                simulateReply();
-            }, 2000 + Math.random() * 3000);
         }
         
         // Display message in chat
@@ -748,12 +775,13 @@
             const messageEl = document.createElement('div');
             messageEl.className = `message ${message.sender === currentUser.username ? 'sent' : 'received'}`;
             
-            const timeString = message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const timeString = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             if (message.isImage) {
                 messageEl.innerHTML = `
                     <div class="message-sender">${message.sender}</div>
-                    <img src="${message.content}" alt="Shared image" class="message-image">
+                    <img src="${message.content}" alt="Shared image" class="message-image" onerror="this.style.display='none'; this.nextSibling.style.display='block';" onload="this.nextSibling.style.display='none';">
+                    <div class="message-content" style="display:none;">[Image failed to load]</div>
                     <div class="message-time">${timeString}</div>
                 `;
             } else {
@@ -779,57 +807,6 @@
                     }, 300);
                 }
             }, 60000);
-        }
-        
-        // Simulate reply from contact
-        function simulateReply() {
-            if (!activeContact) return;
-            
-            const replies = [
-                "Got it!",
-                "Thanks for sharing",
-                "Interesting point",
-                "I see what you mean",
-                "That makes sense",
-                "I agree with you",
-                "Let me think about that",
-                "Good to know!",
-                "I'll keep that in mind",
-                "That's helpful"
-            ];
-            
-            const reply = replies[Math.floor(Math.random() * replies.length)];
-            
-            const message = {
-                sender: activeContact.username,
-                content: reply,
-                isImage: false,
-                timestamp: new Date()
-            };
-            
-            // Save message
-            if (!messages[activeContact.code]) {
-                messages[activeContact.code] = [];
-            }
-            messages[activeContact.code].push(message);
-            
-            // Display message if this contact is active
-            if (activeContact.code === activeContact.code) {
-                displayMessage(message);
-            }
-        }
-        
-        // Validate image URL
-        function isValidImageUrl(url) {
-            try {
-                const parsed = new URL(url);
-                const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
-                return imageExtensions.some(ext => 
-                    parsed.pathname.toLowerCase().endsWith(ext)
-                );
-            } catch {
-                return false;
-            }
         }
         
         // Load contacts from localStorage
