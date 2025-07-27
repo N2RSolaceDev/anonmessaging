@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const { RateLimiterMemory } = require('rate-limiter-flexible');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 const log = require('./log');
 
 // Initialize Express app
