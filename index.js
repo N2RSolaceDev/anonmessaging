@@ -272,8 +272,8 @@ process.on('uncaughtException', (err) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, '0.0.0.0', () => {
   log.logSystem(`Server running on port ${PORT}`);
   console.log(`Untraced Messenger server started on port ${PORT}`);
 });
